@@ -109,9 +109,7 @@ class assign_submission_onlinetextpanel extends assign_submission_plugin {
                        'notchecked');
 
         // Additional Settings
-        $mform->addElement('text', 'elementname', get_string('elementlabel', 'pluginname'));
-        $mform->setType('elementname', PARAM_NOTAGS);
-        $mform->setDefault('elementname', 'default value');       
+             
 
         // Add numeric rule to text field.
         $wordlimitgrprules = array();
@@ -123,6 +121,32 @@ class assign_submission_onlinetextpanel extends assign_submission_plugin {
         $mform->setDefault('assignsubmission_onlinetextpanel_wordlimit_enabled', $defaultwordlimitenabled);
         $mform->setType('assignsubmission_onlinetextpanel_wordlimit', PARAM_INT);
         $mform->hideIf('assignsubmission_onlinetextpanel_wordlimit_group',
+                       'assignsubmission_onlinetextpanel_enabled',
+                       'notchecked');
+
+        //Additional Text Fields
+
+        //Add text area for adding link
+        if($this->get_config('links')=='0')
+            $defaultlinks = '';
+        else
+            $defaultlinks = $this->get_config('links');
+
+        $mform->addElement('textarea', 'assignsubmission_onlinetextpanel_addlink', 'Add Links', 'rows="2" cols="30"');
+        $mform->setDefault('assignsubmission_onlinetextpanel_addlink', $defaultlinks);
+        $mform->hideIf('assignsubmission_onlinetextpanel_addlink',
+                       'assignsubmission_onlinetextpanel_enabled',
+                       'notchecked');
+
+         //Add text area for adding link
+        if($this->get_config('examples')=='0')
+            $defaultexamples = '';
+        else
+            $defaultexamples = $this->get_config('examples');
+
+        $mform->addElement('textarea', 'assignsubmission_onlinetextpanel_addexample', 'Add Examples', 'rows="2" cols="30"');
+        $mform->setDefault('assignsubmission_onlinetextpanel_addexample', $defaultexamples);
+        $mform->hideIf('assignsubmission_onlinetextpanel_addexample',
                        'assignsubmission_onlinetextpanel_enabled',
                        'notchecked');
     }
@@ -199,8 +223,7 @@ class assign_submission_onlinetextpanel extends assign_submission_plugin {
         //Get saved links
         $links = $this->get_config('links');
 
-        if ($links != null)
-        {
+        if ($links != null) {
             $links = $this->format_links($links);
             $this->sidebar_extra_links($links);
         }
