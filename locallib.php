@@ -106,10 +106,7 @@ class assign_submission_onlinetextpanel extends assign_submission_plugin {
                            'notchecked');
         $mform->hideIf('assignsubmission_onlinetextpanel_wordlimit',
                        'assignsubmission_onlinetextpanel_enabled',
-                       'notchecked');
-
-        // Additional Settings
-             
+                       'notchecked');          
 
         // Add numeric rule to text field.
         $wordlimitgrprules = array();
@@ -132,19 +129,20 @@ class assign_submission_onlinetextpanel extends assign_submission_plugin {
         else
             $defaultlinks = $this->get_config('links');
 
-        $mform->addElement('textarea', 'assignsubmission_onlinetextpanel_addlink', 'Add Links', 'rows="2" cols="30"');
+        $mform->addElement('textarea', 'assignsubmission_onlinetextpanel_addlink', 'Add Links', 'rows="3" cols="30"');
         $mform->setDefault('assignsubmission_onlinetextpanel_addlink', $defaultlinks);
         $mform->hideIf('assignsubmission_onlinetextpanel_addlink',
                        'assignsubmission_onlinetextpanel_enabled',
                        'notchecked');
 
-         //Add text area for adding link
+        // Purpose of what example is exactly used for was not elaborated on by previous team...
+        // Add text area for adding link
         if($this->get_config('examples')=='0')
             $defaultexamples = '';
         else
             $defaultexamples = $this->get_config('examples');
 
-        $mform->addElement('textarea', 'assignsubmission_onlinetextpanel_addexample', 'Add Examples', 'rows="2" cols="30"');
+        $mform->addElement('textarea', 'assignsubmission_onlinetextpanel_addexample', 'Add Examples', 'rows="3" cols="30"');
         $mform->setDefault('assignsubmission_onlinetextpanel_addexample', $defaultexamples);
         $mform->hideIf('assignsubmission_onlinetextpanel_addexample',
                        'assignsubmission_onlinetextpanel_enabled',
@@ -168,6 +166,25 @@ class assign_submission_onlinetextpanel extends assign_submission_plugin {
 
         $this->set_config('wordlimit', $wordlimit);
         $this->set_config('wordlimitenabled', $wordlimitenabled);
+
+        //Save links
+        if(empty($data->assignsubmission_onlinetextpanel_addlink)) {
+            $links = '';
+        } else{
+            $links = $data->assignsubmission_onlinetextpanel_addlink;
+        }
+
+        $this->set_config('links', $links);
+
+
+        //Save examples
+        if(empty($data->assignsubmission_onlinetextpanel_addexample)) {
+            $examples = '';
+        } else{
+            $examples = $data->assignsubmission_onlinetextpanel_addexample;
+        }
+
+        $this->set_config('examples', $examples);
 
         return true;
     }
@@ -206,6 +223,7 @@ class assign_submission_onlinetextpanel extends assign_submission_plugin {
         $mform->addElement('html', '<div id="plugin_page" class="plugin">');
 
         $mform->addElement('html', '<div id="editor" class="editor_content">');
+        
         $data = file_prepare_standard_editor($data,
                                              'onlinetextpanel',
                                              $editoroptions,
@@ -214,6 +232,7 @@ class assign_submission_onlinetextpanel extends assign_submission_plugin {
                                              ASSIGNSUBMISSION_ONLINETEXT_FILEAREA,
                                              $submissionid);
         $mform->addElement('editor', 'onlinetextpanel_editor', $this->get_name(), null, $editoroptions);
+        
         $mform->addElement('html', '</div>');
 
         $mform->addElement('html', '<script> var link = document.createElement("link"); link.rel = "stylesheet"; link.type = "text/css"; link.href = "submission/onlinetextpanel/css/sidebar.css"; document.head.appendChild(link);</script>');
@@ -225,11 +244,11 @@ class assign_submission_onlinetextpanel extends assign_submission_plugin {
 
         if ($links != null) {
             $links = $this->format_links($links);
-            $this->sidebar_extra_links($links);
+            $mform->addElement('html', $this->sidebar_extra_links($links));
         }
 
         $duedate = $this->assignment->get_instance()->duedate;
-        
+
         $mform->addElement('html', $this->add_realtime_word_count_script($mform, $duedate));
 
         $mform->addElement('html', $this->create_footer_ui());
@@ -248,9 +267,9 @@ class assign_submission_onlinetextpanel extends assign_submission_plugin {
     function create_footer_ui()
     {
         $realtime_ui = '<footer id="buttonbar" class="plugin" style="float: left;">
-        <image src="pix/layout-expand-right.png" id="sidebaronbutton"></a>
-        <image src="pix/layout-default.png" id="sidebarhalfbutton"></a>
-        <image src="pix/layout-expand-left.png" id="sidebaroffbutton"></a>
+        <image src="pix/layout-expand-right.png" id="sidebaronbutton" class="panelbutton"></a>
+        <image src="pix/layout-default.png" id="sidebarhalfbutton" class="panelbutton"></a>
+        <image src="pix/layout-expand-left.png" id="sidebaroffbutton" class="panelbutton"></a>
         <script type="text/javascript" src="submission/onlinetextpanel/js/sidebar.js"></script>
         </footer>';
 
@@ -264,9 +283,8 @@ class assign_submission_onlinetextpanel extends assign_submission_plugin {
      */
     function create_realtime_ui()
     {
-        $realtime_ui = '<div id="word_count_display" style="float: left;">Word Count: 0</div> <br />';
-
-        $realtime_ui .= '<div id="timer_display" style="float: left;">Timer: </div> <br />';
+        //$realtime_ui = '<div id="word_count_display" style="float: left;">Word Count: 0</div> <br />';
+        $realtime_ui = '<div id="timer_display" style="float: left;">Timer: </div> <br />';
 
         return $realtime_ui;
     }
@@ -274,7 +292,7 @@ class assign_submission_onlinetextpanel extends assign_submission_plugin {
     /**
      * Create sidebar elements
      * 
-     * @return string
+     * @return String
      */
     function create_sidebar()
     {
@@ -282,36 +300,36 @@ class assign_submission_onlinetextpanel extends assign_submission_plugin {
         $assignsubmissionstatus = $this->assignment->get_assign_submission_status_renderable($USER, "");
         $gradingcontrollerpreview = $assignsubmissionstatus->gradingcontrollerpreview;
         $examples = $this->get_config('examples');
-        $examples = str_replace("\r\n", "br />", $examples);
+        $examples = str_replace("\r\n", "<br />", $examples);
 
         $rubric = explode("Rubric options", $gradingcontrollerpreview);
 
         $assignmentinto = $this->assignment->get_instance()->intro;
 
-        $sidebar = '<div id="sidebar"><div id="sidebarContent"><br><br><div id="assignment-name">';
+        $sidebar .= '<div id="sidebar"><div id="sidebarContent"><div id="assign-header">';
         $sidebar .= $this->assignment->get_instance()->name;
         $sidebar .= '</div><div id="assign-desc">';
         $sidebar .= $this->assignment->get_instance()->intro;
         $sidebar .= $this->assignment->get_instance()->activity;
-
-        if ($rubric[0] != null)
-        {
-            $sidebar .= 'Marking Rubric:';
-            $sidebar .=  $rubric[0];
-        }
-
         $sidebar .= '</div>';
 
         $sidebar .= $this->create_realtime_ui();
 
-        $sidebar .= '</div>';
-
-        if ($examples != null)
-        {
-            $sidebar .= 'Examples: <br />';
-            $sidebar .= $examples . '<br />';
+        if ($rubric[0] != null) {
+            $sidebar .= '<div id="assign-rubric">';
+            $sidebar .= '<div id="assign-header"><br/>Marking Rubric:</div>';
+            $sidebar .=  $rubric[0];
         }
-        $sidebar .= '</div> <div id="extraLinks"></div>' ;
+
+        $sidebar .= '</div><div id="extraLinks"></div>' ;
+
+        if ($examples != null) {
+            $sidebar .= '<div id="assign-header"><br/>Examples: <br/></div>';
+            $sidebar .= $examples;
+            $sidebar .= '<br/>';
+        }
+
+        $sidebar .= '</div></div>';
 
         return $sidebar;
     }
@@ -332,9 +350,12 @@ class assign_submission_onlinetextpanel extends assign_submission_plugin {
 
 
     /**
-     * Adds the javascript for realtime tracking scripting 
+     * Adds the javascript for realtime tracking scripting.
      * 
-     * @return string
+     * @param $mform
+     * @param $duedate
+     * 
+     * @return String
      */
     function add_realtime_word_count_script($mform, $duedate)
     {
@@ -351,17 +372,15 @@ class assign_submission_onlinetextpanel extends assign_submission_plugin {
      * Adds the javascript for extra link inclusion 
      * 
      * @param string $links
-     * @return string
+     * @return String
      */
     function sidebar_extra_links($links){
-        $js = <<<EOD
+        return $js = <<<EOD
             <script type="text/javascript">
                 var links = "$links";
             </script>
             <script type="text/javascript" src="submission/onlinetextpanel/js/extra_links.js"></script>
         EOD;
-
-        echo $js;
     }
 
     /**
@@ -378,6 +397,7 @@ class assign_submission_onlinetextpanel extends assign_submission_plugin {
             'return_types' => (FILE_INTERNAL | FILE_EXTERNAL | FILE_CONTROLLED_LINK),
             'removeorphaneddrafts' => true // Whether or not to remove any draft files which aren't referenced in the text.
         );
+
         return $editoroptions;
     }
 
